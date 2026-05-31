@@ -2,7 +2,7 @@
 session_start();
 require_once("conexion.php");
 
-// ✅ Validar sesión
+// Validar sesión
 if (!isset($_SESSION["usuario"])) {
     header("Location: index.php");
     exit;
@@ -11,9 +11,7 @@ if (!isset($_SESSION["usuario"])) {
 $mensaje = "";
 $modoEditar = false;
 
-// =============================
 // ELIMINAR PROVEEDOR
-// =============================
 if (isset($_GET["eliminar"])) {
     $id = intval($_GET["eliminar"]);
 
@@ -24,9 +22,7 @@ if (isset($_GET["eliminar"])) {
     exit;
 }
 
-// =============================
 // CARGAR PROVEEDOR PARA EDITAR
-// =============================
 $idEditar = "";
 $nombreEditar = "";
 $telefonoEditar = "";
@@ -49,9 +45,7 @@ if (isset($_GET["editar"])) {
     }
 }
 
-// =============================
 // GUARDAR O ACTUALIZAR PROVEEDOR
-// =============================
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $accion = $_POST["accion"];
     $nombre = trim($_POST["nombre"]);
@@ -83,9 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// =============================
-// MENSAJES
-// =============================
+// MENSAJES ALERTAS
 if (isset($_GET["msg"])) {
     if ($_GET["msg"] == "guardado") {
         $mensaje = "Proveedor guardado correctamente.";
@@ -96,9 +88,7 @@ if (isset($_GET["msg"])) {
     }
 }
 
-// =============================
 // LISTAR PROVEEDORES
-// =============================
 $proveedores = $conn->query("SELECT * FROM proveedores ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -261,21 +251,21 @@ $proveedores = $conn->query("SELECT * FROM proveedores ORDER BY id DESC")->fetch
                                                             type="button"
                                                             data-bs-toggle="dropdown"
                                                             aria-expanded="false">
-                                                        ⚙️ Opciones
+                                                        ⚙️ 
                                                     </button>
 
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li>
                                                             <a class="dropdown-item text-primary"
                                                                href="proveedores.php?editar=<?php echo $p['id']; ?>">
-                                                                ✏️ Editar
+                                                                 Editar
                                                             </a>
                                                         </li>
                                                         <li>
                                                             <a class="dropdown-item text-danger"
                                                                href="proveedores.php?eliminar=<?php echo $p['id']; ?>"
                                                                onclick="return confirm('¿Eliminar este proveedor?');">
-                                                                🗑️ Eliminar
+                                                                 Eliminar
                                                             </a>
                                                         </li>
                                                     </ul>
