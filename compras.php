@@ -2,9 +2,7 @@
 session_start();
 require_once("conexion.php");
 
-// ==============================
 // VALIDAR SESIÓN
-// ==============================
 if (!isset($_SESSION["usuario"])) {
     header("Location: index.php");
     exit;
@@ -12,9 +10,8 @@ if (!isset($_SESSION["usuario"])) {
 
 $mensaje = "";
 
-// ==============================
 // REGISTRAR COMPRA
-// ==============================
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && $_POST["accion"] == "guardar_compra") {
     $proveedor_id = intval($_POST["proveedor_id"]);
     $producto_id = intval($_POST["producto_id"]);
@@ -75,9 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && $_POST["a
     }
 }
 
-// ==============================
 // REGISTRAR DEVOLUCIÓN AL PROVEEDOR
-// ==============================
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && $_POST["accion"] == "guardar_devolucion") {
     $proveedor_id = intval($_POST["proveedor_id_dev"]);
     $producto_id = intval($_POST["producto_id_dev"]);
@@ -135,9 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && $_POST["a
     }
 }
 
-// ==============================
 // MENSAJES
-// ==============================
 if (isset($_GET["msg"])) {
     if ($_GET["msg"] == "compra_ok") {
         $mensaje = "Compra registrada correctamente.";
@@ -146,9 +139,7 @@ if (isset($_GET["msg"])) {
     }
 }
 
-// ==============================
 // CONSULTAS PARA COMBOS Y TABLAS
-// ==============================
 $proveedores = $conn->query("SELECT * FROM proveedores ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
 $productos = $conn->query("SELECT * FROM productos ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -175,9 +166,7 @@ $historialKardex = $conn->query("
     ORDER BY k.id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ==============================
 // RESUMEN / REPORTE SIMPLE
-// ==============================
 $totalCompras = count($historialCompras);
 $totalDevoluciones = count($historialDevoluciones);
 
@@ -250,8 +239,8 @@ foreach ($historialCompras as $c) {
 
     <!-- BOTONES SUPERIORES -->
     <div class="mb-4 d-flex gap-2">
-        <a href="guardar.php" class="btn btn-secondary">🔙 Regresar al menú</a>
-        <a href="proveedores.php" class="btn btn-info text-white">🚚 Crear / ver proveedores</a>
+        <a href="guardar.php" class="btn btn-secondary">Regresar al menú</a>
+        <a href="proveedores.php" class="btn btn-info text-white"> Crear / ver proveedores</a>
     </div>
 
     <div class="text-center mb-2">
