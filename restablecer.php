@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once("conexion.php");
-require_once("seguridad.php"); // 🔥 IMPORTANTE
+require_once("seguridad.php");
 
 $mensaje = "";
 
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $_POST["password"];
     $confirmar = $_POST["confirmar"];
 
-    // ✅ VALIDACIONES
+    // VALIDACIONES
     if ($password !== $confirmar) {
         $mensaje = "Las contraseñas no coinciden.";
     }
@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     else {
 
-        // ✅ ENCRIPTAR
+        // ENCRIPTAR
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $conn->prepare("
