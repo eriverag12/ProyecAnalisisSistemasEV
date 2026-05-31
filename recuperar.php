@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($resultado) {
         $token = $resultado["token"];
 
-        // ✅ GENERAR LINK BIEN FORMADO
+        // GENERAR LINK BIEN FORMADO
         $scheme = "http";
         $host = $_SERVER['HTTP_HOST'];
         $rutaBase = dirname($_SERVER['SCRIPT_NAME']);
