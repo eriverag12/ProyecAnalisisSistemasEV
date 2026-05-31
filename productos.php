@@ -2,7 +2,6 @@
 session_start();
 require_once("conexion.php");
 
-// ✅ Validar sesión
 if (!isset($_SESSION["usuario"])) {
     header("Location: index.php");
     exit;
@@ -11,22 +10,26 @@ if (!isset($_SESSION["usuario"])) {
 $mensaje = "";
 $modoEditar = false;
 
-// =============================
-// ELIMINAR PRODUCTO
-// =============================
 if (isset($_GET["eliminar"])) {
     $id = intval($_GET["eliminar"]);
 
-    $stmt = $conn->prepare("DELETE FROM productos WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE productos SET estado = 0, fecha_eliminacion = NOW() WHERE id = ?");
     $stmt->execute([$id]);
 
     header("Location: productos.php?msg=eliminado");
     exit;
 }
 
-// =============================
-// CARGAR PRODUCTO PARA EDITAR
-// =============================
+if (isset($_GET["reactivar"])) {
+    $id = intval($_GET["reactivar"]);
+
+    $stmt = $conn->prepare("UPDATE productos SET estado = 1, fecha_eliminacion = NULL WHERE id = ?");
+    $stmt->execute([$id]);
+
+    header("Location: productos.php?msg=reactivado");
+    exit;
+}
+
 $idEditar = "";
 $nombreEditar = "";
 $descripcionEditar = "";
@@ -49,9 +52,6 @@ if (isset($_GET["editar"])) {
     }
 }
 
-// =============================
-// GUARDAR O ACTUALIZAR PRODUCTO
-// =============================
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $accion = $_POST["accion"];
     $nombre = trim($_POST["nombre"]);
@@ -60,8 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stock = $_POST["stock"];
 
     if ($accion == "guardar") {
-        $sql = "INSERT INTO productos (nombre, descripcion, precio, stock)
-                VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO productos (nombre, descripcion, precio, stock, estado, fecha_eliminacion)
+                VALUES (?, ?, ?, ?, 1, NULL)";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$nombre, $descripcion, $precio, $stock]);
 
@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($accion == "actualizar") {
         $id = intval($_POST["id"]);
 
-        $sql = "UPDATE productos 
+        $sql = "UPDATE productos
                 SET nombre = ?, descripcion = ?, precio = ?, stock = ?
                 WHERE id = ?";
         $stmt = $conn->prepare($sql);
@@ -83,23 +83,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// =============================
-// MENSAJES
-// =============================
 if (isset($_GET["msg"])) {
     if ($_GET["msg"] == "guardado") {
         $mensaje = "Producto guardado correctamente.";
     } elseif ($_GET["msg"] == "actualizado") {
         $mensaje = "Producto actualizado correctamente.";
     } elseif ($_GET["msg"] == "eliminado") {
-        $mensaje = "Producto eliminado correctamente.";
+        $mensaje = "Producto enviado al historial de eliminados.";
+    } elseif ($_GET["msg"] == "reactivado") {
+        $mensaje = "Producto reactivado correctamente.";
     }
 }
 
-// =============================
-// LISTAR PRODUCTOS
-// =============================
-$productos = $conn->query("SELECT * FROM productos ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$productos = $conn->query("
+    SELECT * FROM productos
+    WHERE estado = 1
+    ORDER BY id DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$productosEliminados = $conn->query("
+    SELECT * FROM productos
+    WHERE estado = 0
+    ORDER BY fecha_eliminacion DESC, id DESC
+")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -108,60 +114,42 @@ $productos = $conn->query("SELECT * FROM productos ORDER BY id DESC")->fetchAll(
     <meta charset="UTF-8">
     <title>Productos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
         body {
             background-color: #f4f6f9;
         }
-
         .card-custom {
             border: none;
             border-radius: 16px;
         }
-
         .titulo-card {
             font-weight: 700;
             color: #1b2a41;
         }
-
         .btn-regresar {
             border-radius: 12px;
             padding: 10px 18px;
         }
-
-        .table thead th {
-            vertical-align: middle;
-        }
-
         .form-control {
             border-radius: 12px;
         }
-
         .btn {
             border-radius: 12px;
         }
-
         .dropdown-menu {
             border-radius: 12px;
         }
     </style>
 </head>
-
 <body>
 
 <div class="container py-4">
 
-    <!-- BOTÓN REGRESAR -->
     <div class="mb-4">
-        <a href="guardar.php" class="btn btn-secondary btn-regresar">
-            🔙 Regresar al menú
-        </a>
+        <a href="guardar.php" class="btn btn-secondary btn-regresar">🔙 Regresar al menú</a>
     </div>
 
-    <!-- MENSAJE -->
     <?php if (!empty($mensaje)): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?php echo htmlspecialchars($mensaje); ?>
@@ -171,11 +159,9 @@ $productos = $conn->query("SELECT * FROM productos ORDER BY id DESC")->fetchAll(
 
     <div class="row g-4">
 
-        <!-- FORMULARIO -->
         <div class="col-md-4">
             <div class="card shadow card-custom">
                 <div class="card-body p-4">
-
                     <h2 class="titulo-card text-center mb-4">
                         <?php echo $modoEditar ? "Editar Producto" : "Nuevo Producto"; ?>
                     </h2>
@@ -228,22 +214,17 @@ $productos = $conn->query("SELECT * FROM productos ORDER BY id DESC")->fetchAll(
                             </button>
 
                             <?php if ($modoEditar): ?>
-                                <a href="productos.php" class="btn btn-outline-secondary">
-                                    Cancelar edición
-                                </a>
+                                <a href="productos.php" class="btn btn-outline-secondary">Cancelar edición</a>
                             <?php endif; ?>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
 
-        <!-- TABLA -->
         <div class="col-md-8">
             <div class="card shadow card-custom">
                 <div class="card-body p-4">
-
                     <h2 class="titulo-card text-center mb-4">Listado de Productos</h2>
 
                     <div class="table-responsive">
@@ -280,13 +261,13 @@ $productos = $conn->query("SELECT * FROM productos ORDER BY id DESC")->fetchAll(
                                                         <li>
                                                             <a class="dropdown-item text-primary"
                                                                href="productos.php?editar=<?php echo $p['id']; ?>">
-                                                                 Editar
+                                                                Editar
                                                             </a>
                                                         </li>
                                                         <li>
                                                             <a class="dropdown-item text-danger"
                                                                href="productos.php?eliminar=<?php echo $p['id']; ?>"
-                                                               onclick="return confirm('¿Eliminar este producto?');">
+                                                               onclick="return confirm('¿Enviar este producto al historial de eliminados?');">
                                                                 Eliminar
                                                             </a>
                                                         </li>
@@ -309,9 +290,56 @@ $productos = $conn->query("SELECT * FROM productos ORDER BY id DESC")->fetchAll(
         </div>
 
     </div>
+
+    <div class="card shadow card-custom mt-4">
+        <div class="card-body p-4">
+            <h2 class="titulo-card text-center mb-4">Historial de Productos Eliminados</h2>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Fecha eliminación</th>
+                            <th class="text-center">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($productosEliminados) > 0): ?>
+                            <?php foreach($productosEliminados as $p): ?>
+                                <tr>
+                                    <td><?php echo $p["id"]; ?></td>
+                                    <td><?php echo htmlspecialchars($p["nombre"]); ?></td>
+                                    <td><?php echo htmlspecialchars($p["descripcion"]); ?></td>
+                                    <td>Q<?php echo number_format($p["precio"], 2); ?></td>
+                                    <td><?php echo $p["stock"]; ?></td>
+                                    <td><?php echo $p["fecha_eliminacion"]; ?></td>
+                                    <td class="text-center">
+                                        <a href="productos.php?reactivar=<?php echo $p['id']; ?>"
+                                           class="btn btn-success btn-sm">
+                                            Reactivar
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">No hay productos eliminados.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
