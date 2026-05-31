@@ -29,30 +29,30 @@ if (isset($_GET["success"])) {
     box-sizing:border-box;
 }
 
-/* ✅ FONDO COMPLETO */
+/*  FONDO COMPLETO */
 body{
     height:100vh;
     display:flex;
-    justify-content:flex-end; /* 👉 mueve el login a la derecha */
+    justify-content:flex-end; 
     align-items:center;
     font-family:'Segoe UI', sans-serif;
 
     background:
         linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-        url('fondo-login.jpg'); /* ✅ RUTA CORRECTA SEGÚN TU PROYECTO */
+        url('fondo-login.jpg'); 
 
     background-size:cover;
     background-position:center;
 }
 
-/* ✅ CAJA LOGIN */
+/* LOGIN */
 .login-box{
-    width:460px;             /* un poco más ancho */
-    height:520px;            /* ✅ MÁS ALTO */
+    width:460px;             
+    height:520px;         
     
     margin-right:80px;
 
-    padding:50px 40px;       /* ✅ más espacio interno (importante) */
+    padding:50px 40px;      
 
     background:rgba(0,30,60,0.85);
     border:2px solid #ffffff;
@@ -61,9 +61,9 @@ body{
     color:white;
     box-shadow:0 15px 40px rgba(0,0,0,0.5);
 
-    display:flex;            /* ✅ organiza mejor el contenido */
+    display:flex;           
     flex-direction:column;
-    justify-content:center; /* ✅ centra verticalmente */
+    justify-content:center; 
 }
 
     background:rgba(0,30,60,0.85);
@@ -74,7 +74,7 @@ body{
     box-shadow:0 15px 40px rgba(0,0,0,0.5);
 }
 
-    padding:45px;             /* ✅ más espacio interno */
+    padding:45px;          
 
     background:rgba(0,30,60,0.85);
     border:2px solid #ffffff;
@@ -166,7 +166,7 @@ input{
         </div>
     <?php endif; ?>
 
-    <!-- ✅ FORMULARIO CORRECTO -->
+    
     <form action="validarlogin.php" method="POST">
 
         <label>🔑 Usuario</label>
@@ -181,7 +181,7 @@ input{
 
     </form>
 
-    <!-- ✅ LINK RECUPERAR FUNCIONANDO -->
+    <!-- LINK RECUPERAR FUNCIONANDO -->
     <a href="recuperar.php" class="link-recuperar">
         ¿Olvidaste tu contraseña?
     </a>
