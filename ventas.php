@@ -2,9 +2,8 @@
 session_start();
 require_once("conexion.php");
 
-// ==============================
+
 // VALIDAR SESIÓN
-// ==============================
 if (!isset($_SESSION["usuario"])) {
     header("Location: index.php");
     exit;
@@ -12,9 +11,7 @@ if (!isset($_SESSION["usuario"])) {
 
 $mensaje = "";
 
-// ==============================
 // REGISTRAR VENTA
-// ==============================
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && $_POST["accion"] == "guardar_venta") {
     $cliente_nombre = trim($_POST["cliente_nombre"]);
     $producto_id = intval($_POST["producto_id"]);
@@ -82,32 +79,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["accion"]) && $_POST["a
     }
 }
 
-// ==============================
-// MENSAJES
-// ==============================
+// MENSAJES ALERTA
 if (isset($_GET["msg"])) {
     if ($_GET["msg"] == "venta_ok") {
         $mensaje = "Venta registrada correctamente.";
     }
 }
 
-// ==============================
 // PRODUCTOS PARA FORMULARIO
-// ==============================
 $productos = $conn->query("SELECT * FROM productos ORDER BY nombre ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-// ==============================
 // HISTORIAL DE VENTAS
-// ==============================
 $historialVentas = $conn->query("
     SELECT v.id, v.cliente_nombre, v.fecha, v.tipo_pago, v.total
     FROM ventas v
     ORDER BY v.id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ==============================
 // DETALLE DE VENTAS
-// ==============================
 $detalleVentas = $conn->query("
     SELECT dv.venta_id, p.nombre AS producto, dv.cantidad, dv.precio_unitario, dv.subtotal
     FROM detalle_ventas dv
@@ -115,9 +104,7 @@ $detalleVentas = $conn->query("
     ORDER BY dv.venta_id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ==============================
 // KARDEX DE VENTAS
-// ==============================
 $kardexVentas = $conn->query("
     SELECT k.id, k.fecha, p.nombre AS producto, k.documento, k.salida, k.stock_actual, k.observacion
     FROM kardex k
@@ -126,9 +113,7 @@ $kardexVentas = $conn->query("
     ORDER BY k.id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// ==============================
 // REPORTE SIMPLE
-// ==============================
 $reporteVenta = $conn->query("
     SELECT 
         COUNT(*) AS total_ventas,
@@ -145,9 +130,7 @@ $totalVentas = $reporteVenta["total_ventas"] ?? 0;
 $montoTotal = $reporteVenta["monto_total"] ?? 0;
 $productosVendidos = $reporteProductosVendidos["productos_vendidos"] ?? 0;
 
-// ==============================
 // COMPROBANTES
-// ==============================
 $mostrarComprobante = false;
 $tipoComprobante = "";
 $ventaComprobante = null;
@@ -271,8 +254,8 @@ if (isset($_GET["comprobante"]) && isset($_GET["id"])) {
 
     <!-- BOTONES SUPERIORES -->
     <div class="mb-4 d-flex gap-2">
-        <a href="guardar.php" class="btn btn-secondary no-imprimir">🔙 Regresar al menú</a>
-        <a href="ventas.php" class="btn btn-outline-primary no-imprimir">💵 Volver a ventas</a>
+        <a href="guardar.php" class="btn btn-secondary no-imprimir"> Regresar al menú</a>
+        <a href="ventas.php" class="btn btn-outline-primary no-imprimir"> Volver a ventas</a>
     </div>
 
     <h1 class="text-center mb-4 titulo-card">Módulo de Ventas</h1>
@@ -284,7 +267,7 @@ if (isset($_GET["comprobante"]) && isset($_GET["id"])) {
         </div>
     <?php endif; ?>
 
-    <!-- RESUMEN / REPORTE SIMPLE -->
+
     <div class="row g-3 mb-4 no-imprimir">
         <div class="col-md-4">
             <div class="card resumen-card bg-card-1 shadow">
@@ -473,20 +456,20 @@ if (isset($_GET["comprobante"]) && isset($_GET["id"])) {
                                                             type="button"
                                                             data-bs-toggle="dropdown"
                                                             aria-expanded="false">
-                                                        ⚙️ Opciones
+                                                        ⚙️ 
                                                     </button>
 
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li>
                                                             <a class="dropdown-item"
                                                                href="ventas.php?comprobante=venta&id=<?php echo $venta['id']; ?>">
-                                                                🧾 Ver comprobante de venta
+                                                                 Ver comprobante de venta
                                                             </a>
                                                         </li>
                                                         <li>
                                                             <a class="dropdown-item"
                                                                href="ventas.php?comprobante=pago&id=<?php echo $venta['id']; ?>">
-                                                                💳 Ver comprobante de pago
+                                                                 Ver comprobante de pago
                                                             </a>
                                                         </li>
                                                     </ul>
